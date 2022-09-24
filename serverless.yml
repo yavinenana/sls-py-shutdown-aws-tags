@@ -1,0 +1,82 @@
+service: sls-py-shutdown
+frameworkVersion: '2 || 3'
+
+useDotenv: true
+provider:
+  name: aws
+  runtime: python3.8
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-2'}
+  # deploymentBucket:
+  #   name: all-serverless-stack-${opt:stage}-${opt:region}
+#  lambdaHashingVersion: 20201221
+  iam:
+    role:
+      statements:
+        # - Effect: "Allow"
+        #   Action:
+        #     - "s3:ListBucket"
+        #   Resource: 
+        #     - "arn:aws:s3:::${file(config/${self:provider.stage}.yml):productLoaderBucket}"
+        - Effect: "Allow"
+          Action:
+            - "ec2:*"
+          Resource:
+            - "*"
+        - Effect: "Allow"
+          Action:
+            - "rds:*"
+          Resource:
+            - "*"
+  environment:
+    VAR1: ${file(config/${self:provider.stage}.yml):var1}
+
+package:
+  individually: true
+  include:
+    - src/**
+  exclude:
+    - node_modules/**
+    - venv/**
+  # patterns:
+  #   - '!**/**'
+  #   - src/**
+  #   # - '!exclude-me.py'
+  #   # - '!exclude-me-dir/**'
+  #   # - include-me.py
+  #   # - include-me-dir/**
+  # excludeDevDependencies: true
+
+
+functions:
+  rds_stop:
+    handler: src.handler.hello
+    # events:
+    #   - cloudwatchEvent:
+    #       event:
+    #         source:
+    #           - "aws.ec2"
+    #         detail-type:
+    #           - "EC2 Instance State-change Notification"
+    #         detail:
+    #           state:
+    #             - pending
+      # cron(min, hour, day-of-month, month, day-of-week, Year)
+      # cron(0-59, 0-23, 1-31, 1-12, 0-6)
+      # - schedule:
+      #     rate: cron(30 * ? * * *)
+      #     enabled: ${file(config/${self:provider.stage}.yml):enabledSchedule}
+    timeout: 60 # time in seconds (15min)
+
+      # - cloudwatchLog: '/aws/lambda/hello'
+
+plugins:
+  - serverless-python-requirements
+  - serverless-dotenv-plugin
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    noDeploy:
+      - boto3
+      - botocore

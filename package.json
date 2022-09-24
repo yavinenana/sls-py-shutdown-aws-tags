@@ -1,0 +1,17 @@
+{
+  "name": "sls-py-shutdown",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "serverless-deployment-bucket": "^1.6.0",
+    "serverless-dotenv-plugin": "^4.0.2",
+    "serverless-python-requirements": "^5.4.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
