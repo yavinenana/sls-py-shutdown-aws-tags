@@ -6,7 +6,7 @@ provider:
   name: aws
   runtime: python3.8
   stage: ${opt:stage, 'dev'}
-  region: ${opt:region, 'us-east-2'}
+  region: ${opt:region, 'us-west-2'}
   # deploymentBucket:
   #   name: all-serverless-stack-${opt:stage}-${opt:region}
 #  lambdaHashingVersion: 20201221
@@ -28,8 +28,16 @@ provider:
             - "rds:*"
           Resource:
             - "*"
-  environment:
-    VAR1: ${file(config/${self:provider.stage}.yml):var1}
+  # environment:
+  #   VAR1: ${file(config/${self:provider.stage}.yml):var1}
+  stackTags:
+    Area: "AunaDigital"
+    CostCenter: "5010211005"
+    Environment: "${self:provider.stage}"
+    Region: "${self:provider.region}"
+    # Environment: "qa"
+    Project: "saleorBackend"
+    Team: "PODFAR"
 
 package:
   individually: true
@@ -49,30 +57,38 @@ package:
 
 
 functions:
-  rds_stop:
-    handler: src.handler.hello
-    # events:
-    #   - cloudwatchEvent:
-    #       event:
-    #         source:
-    #           - "aws.ec2"
-    #         detail-type:
-    #           - "EC2 Instance State-change Notification"
-    #         detail:
-    #           state:
-    #             - pending
+  shutdown:
+    handler: src.handler.shutdown
+    events:
       # cron(min, hour, day-of-month, month, day-of-week, Year)
       # cron(0-59, 0-23, 1-31, 1-12, 0-6)
-      # - schedule:
-      #     rate: cron(30 * ? * * *)
-      #     enabled: ${file(config/${self:provider.stage}.yml):enabledSchedule}
+      - schedule:
+          rate: cron(00 01 ? * * 1-5)
     timeout: 60 # time in seconds (15min)
-
       # - cloudwatchLog: '/aws/lambda/hello'
+  startUp:
+    handler: src.handler.startUp
+    events:
+      # cron(min, hour, day-of-month, month, day-of-week, Year)
+      # cron(0-59, 0-23, 1-31, 1-12, 0-6)
+      - schedule:
+          rate: cron(00 12 ? * * 1-5)
+    timeout: 60 # time in seconds (15min)
+      # - cloudwatchLog: '/aws/lambda/hello'
+  # test:
+  #   handler: src.hand.hello
+  #   events:
+  #     # cron(min, hour, day-of-month, month, day-of-week, Year)
+  #     # cron(0-59, 0-23, 1-31, 1-12, 0-6)
+  #     - schedule:
+  #         rate: cron(30 21 ? * * *)
+  #   timeout: 60 # time in seconds (15min)
+  #     # - cloudwatchLog: '/aws/lambda/hello'
 
 plugins:
   - serverless-python-requirements
   - serverless-dotenv-plugin
+  - serverless-plugin-resource-tagging
 
 custom:
   pythonRequirements:

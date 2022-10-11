@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "serverless": "^2.72.3",
     "serverless-deployment-bucket": "^1.6.0",
     "serverless-dotenv-plugin": "^4.0.2",
+    "serverless-plugin-resource-tagging": "^1.2.0",
     "serverless-python-requirements": "^5.4.0"
   },
   "devDependencies": {},
